@@ -16,7 +16,7 @@ import static org.mule.sdk.api.meta.JavaVersion.JAVA_8;
  * and sources are going to be declared.
  */
 @Xml(prefix = "mulechain-voice")
-@Extension(name = "Mulechain Voice")
+@Extension(name = "Mulechain Whisperer")
 @Configurations(MuleChainVoiceConfiguration.class)
 @JavaVersionSupport({JAVA_8, JAVA_11, JAVA_17})
 public class MulechainVoiceExtension {

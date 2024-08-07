@@ -1,5 +1,5 @@
 :toc:               left
-:toc-title:         Mulechain Voice Module
+:toc-title:         Mulechain Whisperer Module
 :toclevels:         2
 :last-update-label!:
 :docinfo:
@@ -7,7 +7,7 @@
 :icons: font
 
 
-= Mulechain Voice Module Documentation Reference
+= Mulechain Whisperer Module Documentation Reference
 
 +++
 This is the main class of an extension, is the entry point from which configurations, connection providers, operations and sources are going to be declared.

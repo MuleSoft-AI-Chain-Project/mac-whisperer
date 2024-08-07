@@ -1,14 +1,14 @@
 {
-  "name": "Mulechain Voice",
+  "name": "Mulechain Whisperer",
   "description": "This is the main class of an extension, is the entry point from which configurations, connection providers, operations and sources are going to be declared.",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "vendor": "Mulesoft",
   "category": "COMMUNITY",
   "xmlDsl": {
     "prefix": "mulechain-voice",
     "namespace": "http://www.mulesoft.org/schema/mule/mulechain-voice",
     "schemaLocation": "http://www.mulesoft.org/schema/mule/mulechain-voice/current/mule-mulechain-voice.xsd",
-    "schemaVersion": "0.0.7",
+    "schemaVersion": "0.0.8",
     "xsdFileName": "mule-mulechain-voice.xsd"
   },
   "resources": [],
