@@ -5,10 +5,10 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mule.mulechain</groupId>
-    <artifactId>mulechain-voice</artifactId>
-    <version>0.0.9</version>
+    <artifactId>mulechain-whisperer</artifactId>
+    <version>0.0.10</version>
     <packaging>mule-extension</packaging>
-    <name>Mulechain Voice Extension</name>
+    <name>Mulechain Whisperer</name>
 
     <parent>
         <groupId>org.mule.extensions</groupId>
