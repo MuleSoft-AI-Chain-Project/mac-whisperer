@@ -1,15 +1,15 @@
 {
-  "name": "Mulechain Whisperer",
+  "name": "MAC Whisperer",
   "description": "This is the main class of an extension, is the entry point from which configurations, connection providers, operations and sources are going to be declared.",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "vendor": "Mulesoft",
   "category": "COMMUNITY",
   "xmlDsl": {
-    "prefix": "mulechain-voice",
-    "namespace": "http://www.mulesoft.org/schema/mule/mulechain-voice",
-    "schemaLocation": "http://www.mulesoft.org/schema/mule/mulechain-voice/current/mule-mulechain-voice.xsd",
-    "schemaVersion": "0.0.8",
-    "xsdFileName": "mule-mulechain-voice.xsd"
+    "prefix": "whisperer",
+    "namespace": "http://www.mulesoft.org/schema/mule/whisperer",
+    "schemaLocation": "http://www.mulesoft.org/schema/mule/whisperer/current/mule-whisperer.xsd",
+    "schemaVersion": "0.0.9",
+    "xsdFileName": "mule-whisperer.xsd"
   },
   "resources": [],
   "subTypes": [],
@@ -21,7 +21,7 @@
     {
       "stereotype": {
         "type": "CONFIG",
-        "namespace": "MULECHAIN-VOICE",
+        "namespace": "WHISPERER",
         "parent": {
           "type": "MODULE_CONFIG",
           "namespace": "MULE"
@@ -941,13 +941,8 @@
       "handleable": true
     },
     {
-      "error": "MULE:RETRY_EXHAUSTED",
-      "parent": "MULE:ANY",
-      "handleable": true
-    },
-    {
-      "error": "MULECHAIN-VOICE:RETRY_EXHAUSTED",
-      "parent": "MULE:RETRY_EXHAUSTED",
+      "error": "WHISPERER:CONNECTIVITY",
+      "parent": "MULE:CONNECTIVITY",
       "handleable": true
     },
     {
@@ -956,8 +951,13 @@
       "handleable": true
     },
     {
-      "error": "MULECHAIN-VOICE:CONNECTIVITY",
-      "parent": "MULE:CONNECTIVITY",
+      "error": "MULE:RETRY_EXHAUSTED",
+      "parent": "MULE:ANY",
+      "handleable": true
+    },
+    {
+      "error": "WHISPERER:RETRY_EXHAUSTED",
+      "parent": "MULE:RETRY_EXHAUSTED",
       "handleable": true
     }
   ],

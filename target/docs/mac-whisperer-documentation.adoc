@@ -1,5 +1,5 @@
 :toc:               left
-:toc-title:         Mulechain Whisperer Module
+:toc-title:         MAC Whisperer Module
 :toclevels:         2
 :last-update-label!:
 :docinfo:
@@ -7,7 +7,7 @@
 :icons: font
 
 
-= Mulechain Whisperer Module Documentation Reference
+= MAC Whisperer Module Documentation Reference
 
 +++
 This is the main class of an extension, is the entry point from which configurations, connection providers, operations and sources are going to be declared.
@@ -43,7 +43,7 @@ Default configuration
 
 [[Speech-to-text]]
 === Speech To Text
-`<mulechain-voice:speech-to-text>`
+`<whisperer:speech-to-text>`
 
 +++
 Converts speech to Text
@@ -78,7 +78,7 @@ Converts speech to Text
 
 [[Text-to-speech]]
 === Text To Speech
-`<mulechain-voice:text-to-speech>`
+`<whisperer:text-to-speech>`
 
 +++
 Text speech to Speech
