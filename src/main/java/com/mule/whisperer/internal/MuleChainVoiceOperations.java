@@ -1,4 +1,4 @@
-package com.mule.mulechain.internal;
+package com.mule.whisperer.internal;
 
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 
@@ -14,9 +14,9 @@ import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 
-import com.mule.mulechain.MuleChainVoiceConfiguration;
-import com.mule.mulechain.helpers.STTParamsModelDetails;
-import com.mule.mulechain.helpers.TTSParamsModelDetails;
+import com.mule.whisperer.MuleChainVoiceConfiguration;
+import com.mule.whisperer.helpers.STTParamsModelDetails;
+import com.mule.whisperer.helpers.TTSParamsModelDetails;
 
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.param.Config;

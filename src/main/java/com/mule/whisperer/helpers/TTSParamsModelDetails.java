@@ -1,4 +1,4 @@
-package com.mule.mulechain.helpers;
+package com.mule.whisperer.helpers;
 import org.mule.runtime.api.meta.ExpressionSupport;
 import org.mule.runtime.extension.api.annotation.Expression;
 import org.mule.runtime.extension.api.annotation.param.Optional;

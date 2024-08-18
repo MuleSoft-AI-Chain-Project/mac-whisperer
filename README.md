@@ -1,22 +1,17 @@
-# Mulechain Voice Extension
+# MAC Whisperer
 
-Add description ...
-
-
-...
-
-
-...
-
+MAC Whisperer supports 2 main use cases, 
+- **Speech-to-Text**: Converts audio files (wav, mp3, etc.) into text
+- **Text-to-Speech**: Converts text to audio files (wav, mp3, etc.)
 
 Add this dependency to your application pom.xml
 
 ```
 <dependency>
-    <groupId>com.mule.mulechain</groupId>
-    <artifactId>mulechain-voice</artifactId>
-    <version>0.0.0</version>
+    <groupId>com.mule.whisperer</groupId>
+    <artifactId>mac-whisperer</artifactId>
+    <version>0.1.0</version>
     <classifier>mule-plugin</classifier>
 </dependency>
 ```
-# mulechain-voice
+

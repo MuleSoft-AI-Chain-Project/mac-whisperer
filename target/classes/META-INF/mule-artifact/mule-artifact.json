@@ -2,8 +2,8 @@
   "extensionModelLoaderDescriptor": {
     "id": "java",
     "attributes": {
-      "type": "com.mule.mulechain.MulechainVoiceExtension",
-      "version": "0.0.10"
+      "type": "com.mule.whisperer.MulechainVoiceExtension",
+      "version": "0.0.22"
     }
   },
   "name": "MAC Whisperer",

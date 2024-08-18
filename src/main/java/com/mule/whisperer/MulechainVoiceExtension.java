@@ -1,4 +1,4 @@
-package com.mule.mulechain;
+package com.mule.whisperer;
 
 import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.Configurations;
