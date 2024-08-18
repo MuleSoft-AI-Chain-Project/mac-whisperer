@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mule.whisperer</groupId>
     <artifactId>mac-whisperer</artifactId>
-    <version>0.0.22</version>
+    <version>0.1.0</version>
     <packaging>mule-extension</packaging>
     <name>MAC Whisperer</name>
 
