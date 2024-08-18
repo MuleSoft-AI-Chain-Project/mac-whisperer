@@ -1,9 +1,9 @@
-package com.mule.mulechain;
+package com.mule.whisperer;
 
 import org.mule.runtime.extension.api.annotation.Operations;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
-import com.mule.mulechain.internal.MuleChainVoiceOperations;
+import com.mule.whisperer.internal.MuleChainVoiceOperations;
 
 /**
  * This class represents an extension configuration, values set in this class are commonly used across multiple

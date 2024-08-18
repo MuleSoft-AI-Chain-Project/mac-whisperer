@@ -1,14 +1,19 @@
-package com.mule.mulechain.helpers;
+package com.mule.whisperer.helpers;
 import java.util.Set;
 import org.mule.runtime.api.value.Value;
 import org.mule.runtime.extension.api.values.ValueBuilder;
 import org.mule.runtime.extension.api.values.ValueProvider;
 import org.mule.runtime.extension.api.values.ValueResolvingException;
 
-public class ModelNameProvider implements ValueProvider {
+public class VoicesProvider implements ValueProvider {
 
 	private static final Set<Value> VALUES_FOR = ValueBuilder.getValuesFor(
-	"whisper-1"
+	"alloy",
+	"echo",
+	"fable",
+	"onyx",
+	"nova",
+	"shimmer"
 	);
 
 	@Override
