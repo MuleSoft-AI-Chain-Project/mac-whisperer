@@ -10,7 +10,7 @@ Add this dependency to your application pom.xml
 <dependency>
     <groupId>com.mule.whisperer</groupId>
     <artifactId>mac-whisperer</artifactId>
-    <version>0.1.0</version>
+    <version>0.0.30</version>
     <classifier>mule-plugin</classifier>
 </dependency>
 ```
