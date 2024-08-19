@@ -1,14 +1,16 @@
 package com.mule.whisperer.internal;
 
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
+import static org.apache.commons.io.IOUtils.toInputStream;
+import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
 
 import java.net.HttpURLConnection;
 
-import org.apache.xmlbeans.impl.common.SystemCache;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Optional;
@@ -30,9 +32,9 @@ public class MuleChainVoiceOperations {
   /**
    * Converts speech to Text
    */
-  @MediaType(value = ANY, strict = false)
+  @MediaType(value = APPLICATION_JSON, strict = false)
   @Alias("Speech-to-text")
-  public String speechToText(String audioFilePath, @Optional String finetuningPrompt, @Config MuleChainVoiceConfiguration configuration, @ParameterGroup(name= "Additional properties") STTParamsModelDetails paramDetails) {
+  public InputStream speechToText(String audioFilePath, @Optional String finetuningPrompt, @Config MuleChainVoiceConfiguration configuration, @ParameterGroup(name= "Additional properties") STTParamsModelDetails paramDetails) {
     JSONObject jsonResponse;
     
     try {
@@ -92,15 +94,16 @@ public class MuleChainVoiceOperations {
         jsonResponse = new JSONObject();
 
     }    
-    return jsonResponse.toString();
+    return toInputStream(jsonResponse.toString(), StandardCharsets.UTF_8);
+
   }
 
   /**
    * Text speech to Speech
    */
-  @MediaType(value = ANY, strict = false)
+  @MediaType(value = APPLICATION_JSON, strict = false)
   @Alias("Text-to-speech")
-  public String textToSpeech(String textToConvert, String pathToOutputFile, @Config MuleChainVoiceConfiguration configuration,  @ParameterGroup(name= "Additional properties") TTSParamsModelDetails paramDetails){
+  public InputStream textToSpeech(String textToConvert, String pathToOutputFile, @Config MuleChainVoiceConfiguration configuration,  @ParameterGroup(name= "Additional properties") TTSParamsModelDetails paramDetails){
 
     try {
       // Create JSON payload
@@ -164,7 +167,8 @@ public class MuleChainVoiceOperations {
 
     responseJson.put("outputDirectory", pathToOutputFile);
 
-    return responseJson.toString();
+    return toInputStream(responseJson.toString(), StandardCharsets.UTF_8);
+
   }
 
 
