@@ -15,7 +15,14 @@ public class MuleChainVoiceConfiguration {
   @Parameter
   private String apiKey;
 
+  @Parameter
+   private boolean useLocalWhisper;
+
   public String getApiKey(){
     return apiKey;
+  }
+
+  public boolean isUseLocalWhisper() {
+    return this.useLocalWhisper;
   }
 }

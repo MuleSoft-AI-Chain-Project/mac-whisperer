@@ -19,9 +19,16 @@ import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import com.mule.whisperer.MuleChainVoiceConfiguration;
 import com.mule.whisperer.helpers.STTParamsModelDetails;
 import com.mule.whisperer.helpers.TTSParamsModelDetails;
+import com.mule.whisperer.helpers.LocalSTTParamsModelDetails;
+import com.mule.whisperer.helpers.AudioFileReader;
 
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.param.Config;
+
+// WhisperJNI: These are imports related to the Whisper JNI library.
+import io.github.givimad.whisperjni.WhisperContext;
+import io.github.givimad.whisperjni.WhisperFullParams;
+import io.github.givimad.whisperjni.WhisperJNI;
 
 
 /**
@@ -29,6 +36,80 @@ import org.mule.runtime.extension.api.annotation.param.Config;
  */
 public class MuleChainVoiceOperations {
   private static final String API_URL = "https://api.openai.com/v1/audio/";
+
+/**
+ * Converts speech to Text in local mode
+ */
+@MediaType(value = APPLICATION_JSON, strict = false)
+@Alias("Speech-to-text-local")
+public InputStream speechToTextLocal(String audioFilePath, @Config MuleChainVoiceConfiguration configuration, @ParameterGroup(name = "Local properties") LocalSTTParamsModelDetails localParams) {
+    JSONObject jsonResponse = new JSONObject();
+
+    try {
+        // Check if local Whisper mode is enabled in the configuration
+        if (!configuration.isUseLocalWhisper()) {
+            throw new RuntimeException("Local Whisper mode not activated. Use the OpenAI API or enable the local option.");
+        } else {
+            // Load the Whisper JNI library
+            WhisperJNI.loadLibrary();
+            WhisperJNI whisper = new WhisperJNI();
+
+            // Initialize the Whisper context with the provided model path
+            WhisperContext ctx = whisper.init(localParams.getModelPath());
+            if (ctx == null) {
+                throw new RuntimeException("Failed to initialize Whisper context");
+            } else {
+                // Set up Whisper parameters from the local parameters
+                WhisperFullParams params = new WhisperFullParams();
+                params.nThreads = localParams.getNThreads();
+                params.language = localParams.getLanguage();
+                params.translate = localParams.isTranslate();
+                params.printProgress = localParams.isPrintProgress();
+
+                // Determine the correct file path based on the audio format
+                String processedFilePath = audioFilePath;
+                if (!localParams.getAudioFormat().equals(LocalSTTParamsModelDetails.AudioFormat.WAV)) {
+                    // If the audio format is not WAV, convert it to WAV
+                    String wavFilePath = audioFilePath.replaceAll("\\.\\w+$", ".wav");
+                    AudioFileReader.convertMp3ToWav(audioFilePath, wavFilePath);
+                    processedFilePath = wavFilePath;
+                }
+
+                // Read the audio file and get the audio samples
+                float[] samples = AudioFileReader.readFile(processedFilePath);
+
+                // Perform the speech-to-text operation
+                int result = whisper.full(ctx, params, samples, samples.length);
+                if (result != 0) {
+                    jsonResponse.put("error", "Transcription failed with code " + result);
+                } else {
+                    // Collect the transcribed text from all segments
+                    StringBuilder transcription = new StringBuilder();
+                    int nSegments = whisper.fullNSegments(ctx);
+
+                    for (int i = 0; i < nSegments; ++i) {
+                        transcription.append(whisper.fullGetSegmentText(ctx, i)).append(" ");
+                    }
+
+                    // Add the transcription result to the JSON response
+                    jsonResponse.put("transcription", transcription.toString().trim());
+                }
+
+                // Close the context
+                ctx.close();
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        jsonResponse.put("error", "Error during Speech-to-Text processing with Whisper: " + e.getMessage());
+    }
+
+    // Return the JSON response as InputStream
+    return toInputStream(jsonResponse.toString(), StandardCharsets.UTF_8);
+}
+
+
+
   /**
    * Converts speech to Text
    */
