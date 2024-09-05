@@ -9,16 +9,16 @@ import org.slf4j.*;
 public class AudioFileReader {
 
     /**
-     * Reads an audio file and converts its data into an array of float samples.
+     * Reads an audio file from InputStream and converts its data into an array of float samples.
      *
-     * @param audioFilePath the path to the audio file to be read.
+     * @param audioFile the File object of the audio file to be read.
      * @return an array of float values representing the audio samples.
      * @throws UnsupportedAudioFileException if the audio file format is not supported.
      * @throws IOException                   if an I/O error occurs during file reading.
      */
-    public static float[] readFile(String audioFilePath) throws UnsupportedAudioFileException, IOException {
+    public static float[] readFile(File audioFile) throws UnsupportedAudioFileException, IOException {
         // Open the audio file and create an AudioInputStream
-        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(audioFilePath));
+        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(audioFile);
         
         // Create a ByteBuffer to read the audio data into
         ByteBuffer captureBuffer = ByteBuffer.allocate(audioInputStream.available());
@@ -27,7 +27,7 @@ public class AudioFileReader {
         // Read the audio data into the buffer
         int bytesRead = audioInputStream.read(captureBuffer.array());
         if (bytesRead == -1) {
-            throw new IOException("Unable to read audio file: " + audioFilePath);
+            throw new IOException("Unable to read audio file: " + audioFile.getAbsolutePath());
         }
 
         // Convert the ByteBuffer to a ShortBuffer for easier processing
