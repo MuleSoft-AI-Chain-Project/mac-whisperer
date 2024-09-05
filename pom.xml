@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.mule.whisperer</groupId>
+    <groupId>49585042-c077-4af7-9761-8763a25ebc91</groupId>
     <artifactId>mac-whisperer</artifactId>
-    <version>0.1.5</version>
+    <version>0.1.6</version>
     <packaging>mule-extension</packaging>
     <name>MAC Whisperer</name>
 
@@ -98,13 +98,13 @@
 		<snapshotRepository>
 			<id>exchange-repository</id>
 			<name>Exchange Repository</name>
-			<url>https://maven.anypoint.mulesoft.com/api/v1/organizations/9c7c42b3-1b21-4ec1-9183-047ec0921663/maven</url>
+			<url>https://maven.anypoint.mulesoft.com/api/v1/organizations/49585042-c077-4af7-9761-8763a25ebc91/maven</url>
 			<layout>default</layout>
 		</snapshotRepository>
 		<repository>
 			<id>exchange-repository</id>
 			<name>Exchange Repository</name>
-			<url>https://maven.anypoint.mulesoft.com/api/v1/organizations/9c7c42b3-1b21-4ec1-9183-047ec0921663/maven</url>
+			<url>https://maven.anypoint.mulesoft.com/api/v1/organizations/49585042-c077-4af7-9761-8763a25ebc91/maven</url>
 			<layout>default</layout>
 		</repository>
 	</distributionManagement>
