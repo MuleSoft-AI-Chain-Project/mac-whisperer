@@ -95,7 +95,7 @@ Converts speech to Text in local mode
 |======================
 | Name | Type | Description | Default Value | Required
 | Configuration | String | The name of the configuration to use. | | *x*{nbsp}
-| Audio File Path a| String |  |  | *x*{nbsp}
+| Audio File a| Binary |  |  | *x*{nbsp}
 | Output Mime Type a| String |  +++The mime type of the payload that this operation outputs.+++ |  | {nbsp}
 | Output Encoding a| String |  +++The encoding of the payload that this operation outputs.+++ |  | {nbsp}
 | Streaming Strategy a| * <<repeatable-in-memory-stream>>

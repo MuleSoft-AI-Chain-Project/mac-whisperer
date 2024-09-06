@@ -1,14 +1,14 @@
 {
   "name": "MAC Whisperer",
   "description": "This is the main class of an extension, is the entry point from which configurations, connection providers, operations and sources are going to be declared.",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "vendor": "Mulesoft",
   "category": "COMMUNITY",
   "xmlDsl": {
     "prefix": "whisperer",
     "namespace": "http://www.mulesoft.org/schema/mule/whisperer",
     "schemaLocation": "http://www.mulesoft.org/schema/mule/whisperer/current/mule-whisperer.xsd",
-    "schemaVersion": "0.1.6",
+    "schemaVersion": "0.1.7",
     "xsdFileName": "mule-whisperer.xsd"
   },
   "resources": [],
@@ -865,7 +865,23 @@
                 {
                   "type": {
                     "format": "java",
-                    "type": "String"
+                    "type": "Binary",
+                    "annotations": {
+                      "classInformation": {
+                        "classname": "java.io.InputStream",
+                        "hasDefaultConstructor": true,
+                        "isInterface": false,
+                        "isInstantiable": false,
+                        "isAbstract": true,
+                        "isFinal": false,
+                        "implementedInterfaces": [
+                          "java.io.Closeable"
+                        ],
+                        "parent": "",
+                        "genericTypes": [],
+                        "isMap": false
+                      }
+                    }
                   },
                   "hasDynamicType": false,
                   "required": true,
@@ -884,7 +900,7 @@
                     "order": 1
                   },
                   "allowedStereotypeModels": [],
-                  "name": "audioFilePath",
+                  "name": "audioFile",
                   "description": "",
                   "modelProperties": {}
                 },
