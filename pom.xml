@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>49585042-c077-4af7-9761-8763a25ebc91</groupId>
+    <groupId>com.mule.whisperer</groupId>
     <artifactId>mac-whisperer</artifactId>
     <version>0.1.6</version>
     <packaging>mule-extension</packaging>
