@@ -3,7 +3,7 @@
     "id": "java",
     "attributes": {
       "type": "com.mule.whisperer.MulechainVoiceExtension",
-      "version": "0.1.7"
+      "version": "0.1.9"
     }
   },
   "name": "MAC Whisperer",
