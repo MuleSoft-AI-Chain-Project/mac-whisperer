@@ -19,9 +19,21 @@ import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import com.mule.whisperer.MuleChainVoiceConfiguration;
 import com.mule.whisperer.helpers.STTParamsModelDetails;
 import com.mule.whisperer.helpers.TTSParamsModelDetails;
+import com.mule.whisperer.helpers.LocalSTTParamsModelDetails;
+import com.mule.whisperer.helpers.AudioFileReader;
+import com.mule.whisperer.helpers.WhisperContextHelper;
 
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.param.Config;
+
+// WhisperJNI: These are imports related to the Whisper JNI library.
+import io.github.givimad.whisperjni.WhisperContext;
+import io.github.givimad.whisperjni.WhisperFullParams;
+import io.github.givimad.whisperjni.WhisperJNI;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 
 /**
@@ -29,6 +41,116 @@ import org.mule.runtime.extension.api.annotation.param.Config;
  */
 public class MuleChainVoiceOperations {
   private static final String API_URL = "https://api.openai.com/v1/audio/";
+  private static final Logger LOGGER = LoggerFactory.getLogger(MuleChainVoiceOperations.class);
+
+
+/**
+   * Converts speech to Text in local mode
+   */
+  @MediaType(value = APPLICATION_JSON, strict = false)
+  @Alias("Speech-to-text-local")
+  public InputStream speechToTextLocal(InputStream audioFile, @Config MuleChainVoiceConfiguration configuration, @ParameterGroup(name = "Local properties") LocalSTTParamsModelDetails localParams) {
+      JSONObject jsonResponse = new JSONObject();
+      File tempAudioFile = null; // Declare tempAudioFile here to access it in finally block
+
+      LOGGER.info("Starting speech-to-text operation in local mode.");
+
+      try {
+          // Check if local Whisper mode is enabled in the configuration
+          if (!configuration.isUseLocalWhisper()) {
+              LOGGER.warn("Local Whisper mode not activated. Use the OpenAI API or enable the local option.");
+              throw new RuntimeException("Local Whisper mode not activated. Use the OpenAI API or enable the local option.");
+          } else {
+              LOGGER.info("Local Whisper mode is enabled. Proceeding with loading the Whisper JNI library.");
+
+              // Load the Whisper JNI library
+              WhisperJNI.loadLibrary();
+              WhisperJNI whisper = new WhisperJNI();
+
+              // Initialize or reuse the Whisper context with the provided model path
+              WhisperContext ctx = WhisperContextHelper.getOrCreateWhisperContext(whisper, localParams.getModelPath());
+              if (ctx == null) {
+                  LOGGER.error("Failed to initialize Whisper context.");
+                  throw new RuntimeException("Failed to initialize Whisper context");
+              } else {
+                  // Set up Whisper parameters from the local parameters
+                  WhisperFullParams params = new WhisperFullParams();
+                  params.nThreads = localParams.getNThreads();
+                  params.language = localParams.getLanguage();
+                  params.translate = localParams.isTranslate();
+                  params.printProgress = localParams.isPrintProgress();
+
+                  LOGGER.info("Whisper context initialized successfully. Processing audio input.");
+
+                  // Process the InputStream based on the audio format
+                  String appHomePath = System.getProperty("app.home");
+                  tempAudioFile = new File(appHomePath, "audio." + localParams.getAudioFormat().name().toLowerCase());
+                  try (OutputStream outStream = new FileOutputStream(tempAudioFile)) {
+                      byte[] buffer = new byte[1024];
+                      int bytesRead;
+                      while ((bytesRead = audioFile.read(buffer)) != -1) {
+                          outStream.write(buffer, 0, bytesRead);
+                      }
+                  }
+                  LOGGER.info("Audio file successfully saved to temporary file: {}", tempAudioFile.getAbsolutePath());
+
+                  // Convert audio to WAV if needed
+                  String processedFilePath = tempAudioFile.getAbsolutePath();
+                  if (!localParams.getAudioFormat().equals(LocalSTTParamsModelDetails.AudioFormat.WAV)) {
+                      LOGGER.info("Converting audio file to WAV format.");
+                      // Convert to WAV format
+                      String wavFilePath = processedFilePath.replaceAll("\\.\\w+$", ".wav");
+                      AudioFileReader.convertMp3ToWav(processedFilePath, wavFilePath);
+                      processedFilePath = wavFilePath;
+                      LOGGER.info("Audio file converted to WAV format: {}", wavFilePath);
+                  }
+
+                  // Read the audio file and get the audio samples
+                  LOGGER.info("Reading audio file and extracting samples.");
+                  float[] samples = AudioFileReader.readFile(new File(processedFilePath));
+
+                  // Perform the speech-to-text operation
+                  LOGGER.info("Performing speech-to-text operation with Whisper.");
+                  int result = whisper.full(ctx, params, samples, samples.length);
+                  if (result != 0) {
+                      LOGGER.error("Transcription failed with code {}", result);
+                      jsonResponse.put("error", "Transcription failed with code " + result);
+                  } else {
+                      // Collect the transcribed text from all segments
+                      StringBuilder transcription = new StringBuilder();
+                      int nSegments = whisper.fullNSegments(ctx);
+
+                      for (int i = 0; i < nSegments; ++i) {
+                          transcription.append(whisper.fullGetSegmentText(ctx, i)).append(" ");
+                      }
+
+                      // Add the transcription result to the JSON response
+                      jsonResponse.put("transcription", transcription.toString().trim());
+                      LOGGER.info("Transcription completed successfully.");
+                  }
+              }
+          }
+      } catch (Exception e) {
+          e.printStackTrace();
+          LOGGER.error("Error during Speech-to-Text processing with Whisper: {}", e.getMessage(), e);
+          jsonResponse.put("error", "Error during Speech-to-Text processing with Whisper: " + e.getMessage());
+      }finally {
+          // Ensure the temporary file is deleted after processing
+          if (tempAudioFile != null && tempAudioFile.exists()) {
+              if (tempAudioFile.delete()) {
+                  LOGGER.info("Temporary file deleted successfully: {}", tempAudioFile.getAbsolutePath());
+              } else {
+                  LOGGER.warn("Failed to delete temporary file: {}", tempAudioFile.getAbsolutePath());
+              }
+          }
+      } 
+
+      // Return the JSON response as InputStream
+      return toInputStream(jsonResponse.toString(), StandardCharsets.UTF_8);
+    }
+
+
+
   /**
    * Converts speech to Text
    */
