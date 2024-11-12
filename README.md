@@ -11,7 +11,7 @@ Add this dependency to your application pom.xml
 ```
 <dependency>
     <groupId>cloud.anypoint</groupId>
-    <artifactId>mac-whisperer</artifactId>
+    <artifactId>mule-whisperer-connector</artifactId>
     <version>0.2.0</version>
     <classifier>mule-plugin</classifier>
 </dependency>
