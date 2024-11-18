@@ -1,6 +1,5 @@
 package com.mule.whisperer.internal;
 
-import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.APPLICATION_JSON;
 
@@ -12,9 +11,8 @@ import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-import org.mule.runtime.extension.api.annotation.param.MediaType;
-import org.mule.runtime.extension.api.annotation.param.Optional;
-import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
+import org.mule.runtime.api.metadata.TypedValue;
+import org.mule.runtime.extension.api.annotation.param.*;
 
 import com.mule.whisperer.MuleChainVoiceConfiguration;
 import com.mule.whisperer.helpers.STTParamsModelDetails;
@@ -24,7 +22,6 @@ import com.mule.whisperer.helpers.AudioFileReader;
 import com.mule.whisperer.helpers.WhisperContextHelper;
 
 import org.mule.runtime.extension.api.annotation.Alias;
-import org.mule.runtime.extension.api.annotation.param.Config;
 
 // WhisperJNI: These are imports related to the Whisper JNI library.
 import io.github.givimad.whisperjni.WhisperContext;
@@ -49,7 +46,7 @@ public class MuleChainVoiceOperations {
    */
   @MediaType(value = APPLICATION_JSON, strict = false)
   @Alias("Speech-to-text-local")
-  public InputStream speechToTextLocal(InputStream audioFile, @Config MuleChainVoiceConfiguration configuration, @ParameterGroup(name = "Local properties") LocalSTTParamsModelDetails localParams) {
+  public InputStream speechToTextLocal(@Content InputStream audioFile, @Config MuleChainVoiceConfiguration configuration, @ParameterGroup(name = "Local properties") LocalSTTParamsModelDetails localParams) {
       JSONObject jsonResponse = new JSONObject();
       File tempAudioFile = null; // Declare tempAudioFile here to access it in finally block
 
@@ -156,13 +153,10 @@ public class MuleChainVoiceOperations {
    */
   @MediaType(value = APPLICATION_JSON, strict = false)
   @Alias("Speech-to-text")
-  public InputStream speechToText(String audioFilePath, @Optional String finetuningPrompt, @Config MuleChainVoiceConfiguration configuration, @ParameterGroup(name= "Additional properties") STTParamsModelDetails paramDetails) {
+  public InputStream speechToText(@Content TypedValue<InputStream> audioContent, @Optional String finetuningPrompt, @Config MuleChainVoiceConfiguration configuration, @ParameterGroup(name= "Additional properties") STTParamsModelDetails paramDetails) {
     JSONObject jsonResponse;
     
     try {
-      // Prepare the audio file
-      File audioFile = new File(audioFilePath);
-
       // Create the connection
       URL url = new URL(API_URL + "transcriptions");
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -174,7 +168,7 @@ public class MuleChainVoiceOperations {
 
       // Write the audio file and model parameter to the request
       try (OutputStream os = connection.getOutputStream()) {
-          writeMultipartData(os, audioFile, paramDetails.getModelName(), finetuningPrompt, paramDetails.getResponseFormat(), (Double) paramDetails.getTemperature(), paramDetails.getLanguage());
+          writeMultipartData(os, audioContent, paramDetails.getModelName(), finetuningPrompt, paramDetails.getResponseFormat(), (Double) paramDetails.getTemperature(), paramDetails.getLanguage());
       }
 
       // Get the response
@@ -295,16 +289,20 @@ public class MuleChainVoiceOperations {
 
 
 
-  private static void writeMultipartData(OutputStream os, File audioFile, String model, String prompt, String responseFormat, double temperature, String language) throws IOException {
+  private static void writeMultipartData(OutputStream os, TypedValue<InputStream> audioContent, String model, String prompt, String responseFormat, double temperature, String language) throws IOException {
     String boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
     PrintWriter writer = new PrintWriter(new OutputStreamWriter(os, "UTF-8"), true);
 
-    // Add audio file
-    writer.append("--").append(boundary).append("\r\n");
-    writer.append("Content-Disposition: form-data; name=\"file\"; filename=\"").append(audioFile.getName()).append("\"\r\n");
-    writer.append("Content-Type: audio/mpeg\r\n\r\n").flush(); // Set the correct MIME type for MP3
+    org.mule.runtime.api.metadata.MediaType audioContentType = audioContent.getDataType().getMediaType();
+    // The OpenAI transcription API determines the audio codec using the file extension we provide
+    String extension = guessAudioFileExtension(audioContentType);
 
-    try (FileInputStream inputStream = new FileInputStream(audioFile)) {
+      // Add audio file
+    writer.append("--").append(boundary).append("\r\n");
+    writer.append("Content-Disposition: form-data; name=\"file\"; filename=\"").append("speech." + extension).append("\"\r\n");
+    writer.append("Content-Type: " + audioContentType.toRfcString() + "\r\n\r\n").flush();
+
+    try (InputStream inputStream = audioContent.getValue()) {
         byte[] buffer = new byte[4096];
         int bytesRead;
         while ((bytesRead = inputStream.read(buffer)) != -1) {
@@ -345,5 +343,34 @@ public class MuleChainVoiceOperations {
 
     writer.append("--").append(boundary).append("--\r\n").flush();
 }
+
+    private static String guessAudioFileExtension(org.mule.runtime.api.metadata.MediaType audioContentType) {
+        String extension = "mp3";
+        switch (audioContentType.withoutParameters().toString()) {
+            case "audio/m4a":
+            case "audio/mp4":
+                extension = "m4a";
+                break;
+            case "audio/flac":
+            case "audio/x-flac":
+                extension = "flac";
+                break;
+            case "audio/wav":
+            case "audio/vnd.wav":
+            case "audio/vnd.wave":
+            case "audio/wave":
+            case "audio/x-wav":
+            case "audio/x-pn-wav":
+                extension = "wav";
+                break;
+            case "audio/ogg":
+                extension = "ogg";
+                break;
+            case "audio.webm":
+                extension = "weba";
+                break;
+        }
+        return extension;
+    }
 
 }
