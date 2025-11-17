@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mulesoft.connectors</groupId>
     <artifactId>mule4-whisperer-connector</artifactId>
-    <version>0.2.80</version>
+    <version>0.4.1-SNAPSHOT</version>
     <packaging>mule-extension</packaging>
-    <name>MuleSoft Whisperer Connector - Mule 4</name>
-    <description>MuleSoft Whisperer Connector provides capabilities to convert speech to text or text to speech.</description>
+    <name>MAC Whisperer Connector</name>
+    <description>MAC Whisperer Connector provides capabilities to convert speech to text or text to speech.</description>
     <url>https://mac-project.ai/docs/mac-whisperer/connector-overview</url>
     <scm>
         <connection>scm:git:git://github.com/MuleSoft-AI-Chain-Project/mule-whisperer-connector.git</connection>
-        <developerConnection>scm:git:ssh://github.com:MuleSoft-AI-Chain-Project/mule-whisperer-connector.git</developerConnection>
+        <developerConnection>scm:git:git@github.com:MuleSoft-AI-Chain-Project/mule-whisperer-connector.git</developerConnection>
         <url>https://github.com/MuleSoft-AI-Chain-Project/mule-whisperer-connector/tree/master</url>
-    </scm>
+      <tag>HEAD</tag>
+  </scm>
 
     <licenses>
         <license>
@@ -27,7 +26,7 @@
     <parent>
         <groupId>org.mule.extensions</groupId>
         <artifactId>mule-modules-parent</artifactId>
-        <version>1.9.0</version>
+        <version>1.9.6</version>
     </parent>
 
     <properties>
@@ -35,8 +34,10 @@
 		<formatterConfigPath>formatter.xml</formatterConfigPath>
 		<javaFormatter.plugin.version>2.0.1</javaFormatter.plugin.version>
 		<formatterGoal>validate</formatterGoal>
-        <munit.extensions.maven.plugin.version>1.1.2</munit.extensions.maven.plugin.version>
-        <munit.version>3.0.0</munit.version>
+        <munit.extensions.maven.plugin.version>1.5.0</munit.extensions.maven.plugin.version>
+        <munit.version>3.4.0</munit.version>
+        <maven.surefire.version>3.2.5</maven.surefire.version>
+        <runtimeProduct>MULE_EE</runtimeProduct>
     </properties>
 
    <dependencyManagement>
@@ -52,23 +53,28 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- REQUIRED: Pure Java MP3 decoder -->
         <dependency>
             <groupId>javazoom</groupId>
             <artifactId>jlayer</artifactId>
             <version>1.0.1</version>
         </dependency>
 
+        <!-- OPTIONAL: User provides if they need M4A/AAC/FLAC/OGG/WEBM support -->
+        <!-- Platform-specific variants (e.g., ffmpeg-platform-linux-x86_64) are also supported -->
         <dependency>
             <groupId>org.bytedeco</groupId>
-            <artifactId>ffmpeg</artifactId>
+            <artifactId>ffmpeg-platform</artifactId>
             <version>6.1.1-1.5.10</version>
+            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mule.sdk</groupId>
             <artifactId>mule-sdk-api</artifactId>
-            <version>0.9.0-rc1</version>
-        </dependency> 
+            <version>0.11.4</version>
+        </dependency>
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
@@ -109,10 +115,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- JUnit Jupiter for diagnostic testing -->
         <dependency>
-            <groupId>com.github.kokorin.jaffree</groupId>
-            <artifactId>jaffree</artifactId>
-            <version>2024.08.29</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
@@ -123,6 +131,7 @@
                 <groupId>com.mulesoft.munit</groupId>
                 <artifactId>munit-extensions-maven-plugin</artifactId>
                 <version>${munit.extensions.maven.plugin.version}</version>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <goals>
@@ -131,13 +140,26 @@
                         <phase>integration-test</phase>
                     </execution>
                 </executions>
+                <configuration>
+                    <!-- Use connector's minimum Mule version (same as inference connector) -->
+                    <minMuleVersionConfig>CONNECTOR</minMuleVersionConfig>
+                    <sharedLibraries>
+                        <!-- WhisperJNI and audio processing dependencies -->
+                        <sharedLibrary>
+                            <groupId>io.github.givimad</groupId>
+                            <artifactId>whisper-jni</artifactId>
+                        </sharedLibrary>
+                        <sharedLibrary>
+                            <groupId>org.bytedeco</groupId>
+                            <artifactId>ffmpeg-platform</artifactId>
+                        </sharedLibrary>
+                        <sharedLibrary>
+                            <groupId>javazoom</groupId>
+                            <artifactId>jlayer</artifactId>
+                        </sharedLibrary>
+                    </sharedLibraries>
+                </configuration>
                 <dependencies>
-                    <dependency>
-                        <groupId>com.mulesoft.munit</groupId>
-                        <artifactId>munit-runner</artifactId>
-                        <version>${munit.version}</version>
-                        <classifier>mule-plugin</classifier>
-                    </dependency>
                     <dependency>
                         <groupId>com.mulesoft.munit</groupId>
                         <artifactId>munit-tools</artifactId>
@@ -148,31 +170,49 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.5</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.sonatype.central</groupId>
-                <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>0.6.0</version>
-                <extensions>true</extensions>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
                 <configuration>
-                    <publishingServerId>central</publishingServerId>
-                    <checksums>all</checksums>
-                    <deploymentName>MuleSoft Whisperer Connector Mule 4 Deployment</deploymentName>
+                    <argLine>-Dfile.encoding=UTF-8</argLine>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release-sign-artifacts</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.8</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.9.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <checksums>all</checksums>
+                            <deploymentName>${project.artifactId}-${project.version}</deploymentName>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 	<repositories>
         <repository>

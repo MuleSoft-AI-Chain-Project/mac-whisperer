@@ -11,12 +11,15 @@ http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/m
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="c7ad9af0-728a-483e-a5c3-46536a98b466" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
-	<whisperer:config name="WhisperJNI_Remote_Config" doc:name="MAC Whisperer Config" doc:id="6fe87adc-89a2-4938-b7fb-748735599540" >
+	<whisperer:speech-to-text-config name="WhisperJNI_Remote_Config" doc:name="MAC Whisperer STT Config" doc:id="6fe87adc-89a2-4938-b7fb-748735599540" >
 		<whisperer:whisperjniurl-connection modelURL="${whisperjni.model.repositoryUrl}" installationFilePath='${whisperjni.model.installationFilePath}' printProgress="true"/>
-	</whisperer:config>
-	<whisperer:config name="OpenAI_Config" doc:name="MAC Whisperer Config" doc:id="c8522973-353d-4eff-aa3e-21be4b1cfc8e" >
+	</whisperer:speech-to-text-config>
+	<whisperer:speech-to-text-config name="OpenAI_STT_Config" doc:name="MAC Whisperer STT Config" doc:id="c8522973-353d-4eff-aa3e-21be4b1cfc8e" >
 		<whisperer:openai-connection apiKey="${openai.apikey}" />
-	</whisperer:config>
+	</whisperer:speech-to-text-config>
+	<whisperer:text-to-speech-config name="OpenAI_TTS_Config" doc:name="MAC Whisperer TTS Config" doc:id="7d633a84-464e-4ffa-bb4f-859846610651" >
+		<whisperer:openai-connection apiKey="${openai.apikey}" />
+	</whisperer:text-to-speech-config>
 	<apikit:config outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" doc:name="Router" doc:id="592b3ef8-e02c-452b-839f-ef324b173e5c" name="whisperer-connector-operations-api-config" api="api/whisperer-connector-operations-api.raml" />
 	<configuration-properties doc:name="Configuration properties" doc:id="8992b04e-5fd9-4367-8ea7-e211bbf6e548" file="config.properties" />
 	<flow name="mule-whisperer-connector-operations-demoFlow" doc:id="91f82dca-5a27-469d-8cab-fd991ff5d0ba" >
@@ -146,7 +149,7 @@ output application/json
 				</whisperer:speech-to-text>
 			</when>
 			<otherwise >
-				<whisperer:speech-to-text doc:name="[OpenAI] Speech to Text" doc:id="238fa113-8410-46d2-95bf-7ab2f6b81fee" config-ref="OpenAI_Config" language="it" temperature="#[attributes.queryParams.temperature default 0.5]">
+				<whisperer:speech-to-text doc:name="[OpenAI] Speech to Text" doc:id="238fa113-8410-46d2-95bf-7ab2f6b81fee" config-ref="OpenAI_STT_Config" language="it" temperature="#[attributes.queryParams.temperature default 0.5]">
 					<whisperer:audio-content><![CDATA[#[(((payload as Object).parts as Object).audio as Object).content]]]></whisperer:audio-content>
 				</whisperer:speech-to-text>
 			</otherwise>
@@ -158,7 +161,7 @@ output application/json
 		</error-handler>
 	</flow>
 	<flow name="post:\generate:application\json:whisperer-connector-operations-api-config" doc:id="2e139863-a95c-4eaf-bae8-f4df68f18a05" >
-		<whisperer:text-to-speech doc:name="[OpenAI] Text to Speech" doc:id="5833960e-8239-407f-b8b7-8c883c68af5e" config-ref="OpenAI_Config">
+		<whisperer:text-to-speech doc:name="[OpenAI] Text to Speech" doc:id="5833960e-8239-407f-b8b7-8c883c68af5e" config-ref="OpenAI_TTS_Config">
 			<whisperer:text ><![CDATA[#[payload.text]]]></whisperer:text>
 		</whisperer:text-to-speech>
 	</flow>

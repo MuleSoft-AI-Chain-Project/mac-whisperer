@@ -5,12 +5,6 @@ import javax.sound.sampled.*;
 import java.io.*;
 import java.nio.*;
 
-import com.github.kokorin.jaffree.ffmpeg.FFmpeg;
-import com.github.kokorin.jaffree.ffmpeg.UrlInput;
-import com.github.kokorin.jaffree.ffmpeg.UrlOutput;
-
-import java.nio.file.Paths;
-
 public class AudioFileReader {
 
     /**
@@ -98,27 +92,38 @@ public class AudioFileReader {
         Mp3ToWavConverter.convertMp3ToWav(mp3FilePath, wavFilePath);
     }
 
-    public static void convertM4AToWavWithFFmpeg(String m4aFilePath, String wavFilePath) throws IOException {
+    /**
+     * Converts an M4A/AAC file to WAV format (16kHz, Mono, 16-bit PCM).
+     * Requires ByteDeco FFmpeg (optional dependency).
+     *
+     * @param m4aFilePath the path to the source M4A file.
+     * @param wavFilePath the path where the converted WAV file should be saved.
+     * @throws IOException if an I/O error occurs during conversion.
+     */
+    public static void convertM4AToWav(String m4aFilePath, String wavFilePath) throws IOException {
+        try {
+            AudioConverter.convertToWav(m4aFilePath, wavFilePath, "m4a");
+        } catch (Exception e) {
+            throw new IOException("Failed to convert M4A to WAV", e);
+        }
+    }
+
+    /**
+     * Generic audio format converter. Detects format from file extension and converts to WAV.
+     * Supports: MP3, M4A, AAC, WAV (core formats), FLAC, OGG, WEBM (with optional ByteDeco).
+     *
+     * @param inputPath the path to the source audio file.
+     * @param outputPath the path where the converted WAV file should be saved.
+     * @throws IOException if conversion fails or format is unsupported.
+     */
+    public static void convertAudioToWav(String inputPath, String outputPath) throws IOException {
+        // Detect format from file extension
+        String format = inputPath.substring(inputPath.lastIndexOf('.') + 1).toLowerCase();
 
         try {
-            // Create FFmpeg instance.
-            // If ffmpegExecutablePath is defined, use FFmpeg.atPath(ffmpegExecutablePath)
-            FFmpeg ffmpeg = FFmpeg.atPath(Paths.get("/opt/homebrew/Cellar/ffmpeg/7.1_4/bin")) // Assumes ffmpeg is in PATH
-                .addInput(UrlInput.fromPath(Paths.get(m4aFilePath)))
-                .addOutput(UrlOutput.toPath(Paths.get(wavFilePath))
-                .addArguments("-acodec", "pcm_s16le")
-            )
-            // Override existing output file if it exists
-            .setOverwriteOutput(true);
-
-            // Execute the FFmpeg command
-            ffmpeg.execute();
-
-            System.out.println("\nConversion finished successfully!");
-
+            AudioConverter.convertToWav(inputPath, outputPath, format);
         } catch (Exception e) {
-            System.err.println("\nError during conversion: " + e.getMessage());
-            e.printStackTrace();
+            throw new IOException("Failed to convert " + format.toUpperCase() + " to WAV", e);
         }
     }
 }

@@ -53,7 +53,7 @@ public class AudioUtils {
                 extension = "ogg";
                 break;
             case "audio/webm":
-                extension = "weba";
+                extension = "webm";
                 break;
             case "audio/aac":
                 extension = "aac";

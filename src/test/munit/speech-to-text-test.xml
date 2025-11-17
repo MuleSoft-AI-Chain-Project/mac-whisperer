@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:whisperer="http://www.mulesoft.org/schema/mule/whisperer"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="
+      http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+      http://www.mulesoft.org/schema/mule/munit-tools http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+      http://www.mulesoft.org/schema/mule/whisperer http://www.mulesoft.org/schema/mule/whisperer/current/mule-whisperer.xsd">
+
+    <munit:config name="speech-to-text-test.xml" />
+
+    <!-- Speech-to-Text Configuration using local WhisperJNI -->
+    <whisperer:speech-to-text-config name="Test_STT_Config" doc:name="Test Speech to text">
+        <whisperer:whisperjnifile-connection modelFilePath="classpath://ggml-small.en-q8_0.bin"/>
+    </whisperer:speech-to-text-config>
+
+    <!-- ========================================
+         Integration Tests for All Audio Formats
+         Tests complete STT pipeline end-to-end
+         ======================================== -->
+
+    <!-- Test 1: WAV Format (Core - Always Available) -->
+    <munit:test name="stt-wav-test"
+                description="End-to-end STT test for WAV format"
+                doc:id="stt-wav-test">
+        <munit:execution>
+            <whisperer:transcribe
+                doc:name="Transcribe WAV"
+                config-ref="Test_STT_Config"
+                audioFile="classpath://speech-sample-1.wav"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that
+                doc:name="Verify transcription is not null"
+                expression="#[payload]"
+                is="#[MunitTools::notNullValue()]"
+                message="Transcription should not be null"/>
+            <munit-tools:assert-that
+                doc:name="Verify transcription has content"
+                expression="#[sizeOf(payload)]"
+                is="#[MunitTools::greaterThan(0)]"
+                message="Transcription should contain text"/>
+        </munit:validation>
+    </munit:test>
+
+    <!-- Test 2: MP3 Format (Core - JLayer, Always Available) -->
+    <munit:test name="stt-mp3-test"
+                description="End-to-end STT test for MP3 format using JLayer"
+                doc:id="stt-mp3-test">
+        <munit:execution>
+            <whisperer:transcribe
+                doc:name="Transcribe MP3"
+                config-ref="Test_STT_Config"
+                audioFile="classpath://speech-sample-3.mp3"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that
+                doc:name="Verify transcription is not null"
+                expression="#[payload]"
+                is="#[MunitTools::notNullValue()]"
+                message="Transcription should not be null"/>
+            <munit-tools:assert-that
+                doc:name="Verify transcription has content"
+                expression="#[sizeOf(payload)]"
+                is="#[MunitTools::greaterThan(0)]"
+                message="Transcription should contain text"/>
+        </munit:validation>
+    </munit:test>
+
+    <!-- Test 3: M4A/AAC Format (Extended - Requires ByteDeco FFmpeg) -->
+    <munit:test name="stt-m4a-test"
+                description="End-to-end STT test for M4A/AAC format using ByteDeco FFmpeg"
+                doc:id="stt-m4a-test">
+        <munit:execution>
+            <whisperer:transcribe
+                doc:name="Transcribe M4A"
+                config-ref="Test_STT_Config"
+                audioFile="classpath://speech-sample-2.m4a"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that
+                doc:name="Verify transcription is not null"
+                expression="#[payload]"
+                is="#[MunitTools::notNullValue()]"
+                message="Transcription should not be null"/>
+            <munit-tools:assert-that
+                doc:name="Verify transcription has content"
+                expression="#[sizeOf(payload)]"
+                is="#[MunitTools::greaterThan(0)]"
+                message="Transcription should contain text"/>
+        </munit:validation>
+    </munit:test>
+
+    <!-- Test 4: FLAC Format (Extended - Requires ByteDeco FFmpeg) -->
+    <munit:test name="stt-flac-test"
+                description="End-to-end STT test for FLAC format using ByteDeco FFmpeg"
+                doc:id="stt-flac-test">
+        <munit:execution>
+            <whisperer:transcribe
+                doc:name="Transcribe FLAC"
+                config-ref="Test_STT_Config"
+                audioFile="classpath://speech-sample-4.flac"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that
+                doc:name="Verify transcription is not null"
+                expression="#[payload]"
+                is="#[MunitTools::notNullValue()]"
+                message="Transcription should not be null"/>
+            <munit-tools:assert-that
+                doc:name="Verify transcription has content"
+                expression="#[sizeOf(payload)]"
+                is="#[MunitTools::greaterThan(0)]"
+                message="Transcription should contain text"/>
+        </munit:validation>
+    </munit:test>
+
+    <!-- Test 5: OGG Vorbis Format (Extended - Requires ByteDeco FFmpeg) -->
+    <munit:test name="stt-ogg-test"
+                description="End-to-end STT test for OGG Vorbis format using ByteDeco FFmpeg"
+                doc:id="stt-ogg-test">
+        <munit:execution>
+            <whisperer:transcribe
+                doc:name="Transcribe OGG"
+                config-ref="Test_STT_Config"
+                audioFile="classpath://speech-sample-5.ogg"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that
+                doc:name="Verify transcription is not null"
+                expression="#[payload]"
+                is="#[MunitTools::notNullValue()]"
+                message="Transcription should not be null"/>
+            <munit-tools:assert-that
+                doc:name="Verify transcription has content"
+                expression="#[sizeOf(payload)]"
+                is="#[MunitTools::greaterThan(0)]"
+                message="Transcription should contain text"/>
+        </munit:validation>
+    </munit:test>
+
+    <!-- Test 6: WEBM Format (Extended - Requires ByteDeco FFmpeg, Validates Phase 1 WEBM Fix) -->
+    <munit:test name="stt-webm-test"
+                description="End-to-end STT test for WEBM format using ByteDeco FFmpeg (validates Phase 1 webm fix)"
+                doc:id="stt-webm-test">
+        <munit:execution>
+            <whisperer:transcribe
+                doc:name="Transcribe WEBM"
+                config-ref="Test_STT_Config"
+                audioFile="classpath://speech-sample-6.webm"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that
+                doc:name="Verify transcription is not null"
+                expression="#[payload]"
+                is="#[MunitTools::notNullValue()]"
+                message="Transcription should not be null"/>
+            <munit-tools:assert-that
+                doc:name="Verify transcription has content"
+                expression="#[sizeOf(payload)]"
+                is="#[MunitTools::greaterThan(0)]"
+                message="Transcription should contain text"/>
+        </munit:validation>
+    </munit:test>
+
+</mule>

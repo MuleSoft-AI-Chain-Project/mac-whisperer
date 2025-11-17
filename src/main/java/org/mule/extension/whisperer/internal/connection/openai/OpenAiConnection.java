@@ -3,7 +3,8 @@ package org.mule.extension.whisperer.internal.connection.openai;
 import org.mule.extension.whisperer.api.OpenAiTranscriptionAttributes;
 import org.mule.extension.whisperer.api.STTParamsModelDetails;
 import org.mule.extension.whisperer.api.TTSParamsModelDetails;
-import org.mule.extension.whisperer.internal.connection.WhisperConnection;
+import org.mule.extension.whisperer.internal.connection.SpeechToTextConnection;
+import org.mule.extension.whisperer.internal.connection.TextToSpeechConnection;
 import org.mule.extension.whisperer.internal.error.GenerationException;
 import org.mule.extension.whisperer.internal.error.TranscriptionException;
 import org.mule.extension.whisperer.internal.helpers.audio.AudioUtils;
@@ -32,7 +33,7 @@ import java.util.concurrent.TimeoutException;
 import static org.mule.runtime.http.api.HttpConstants.Method.GET;
 import static org.mule.runtime.http.api.HttpConstants.Method.POST;
 
-public class OpenAiConnection implements WhisperConnection {
+public class OpenAiConnection implements SpeechToTextConnection, TextToSpeechConnection {
     private static Logger LOGGER = LoggerFactory.getLogger(OpenAiConnection.class);
     private final String apiKey;
     private final HttpClient httpClient;

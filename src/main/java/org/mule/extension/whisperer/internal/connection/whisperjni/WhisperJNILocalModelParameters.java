@@ -13,7 +13,7 @@ public class WhisperJNILocalModelParameters {
   @DisplayName("File path")
   @Alias("modelFilePath")
   @Expression(ExpressionSupport.SUPPORTED)
-  @Example("mule.home ++ \"/apps/\" ++ app.name ++ \"/model.bin\"")
+  @Example("\"classpath://models/ggml-model-whisper-tiny.en-q8_0.bin\"")
   private String modelFilePath;
 
   public String getModelFilePath() {

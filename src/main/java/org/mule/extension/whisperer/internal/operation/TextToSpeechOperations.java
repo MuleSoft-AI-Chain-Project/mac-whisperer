@@ -1,17 +1,14 @@
 package org.mule.extension.whisperer.internal.operation;
 
-import org.mule.extension.whisperer.api.STTParamsModelDetails;
 import org.mule.extension.whisperer.api.TTSParamsModelDetails;
-import org.mule.extension.whisperer.internal.connection.WhisperConnection;
+import org.mule.extension.whisperer.internal.connection.TextToSpeechConnection;
 import org.mule.extension.whisperer.internal.error.GenerationErrorTypeProvider;
-import org.mule.extension.whisperer.internal.error.TranscriptionErrorTypeProvider;
-import org.mule.extension.whisperer.internal.metadata.TranscriptionOutputResolver;
-import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.error.Throws;
-import org.mule.runtime.extension.api.annotation.metadata.MetadataKeyId;
-import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
-import org.mule.runtime.extension.api.annotation.param.*;
+import org.mule.runtime.extension.api.annotation.param.Connection;
+import org.mule.runtime.extension.api.annotation.param.Content;
+import org.mule.runtime.extension.api.annotation.param.MediaType;
+import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.process.CompletionCallback;
@@ -20,35 +17,14 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
-public class WhispererOperations {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WhispererOperations.class);
-
-    @DisplayName("Speech to Text")
-    @Alias("speech-to-text")
-    @OutputResolver(output = TranscriptionOutputResolver.class, attributes = TranscriptionOutputResolver.class)
-    @MediaType(value = MediaType.TEXT_PLAIN, strict = false)
-    @Throws(TranscriptionErrorTypeProvider.class)
-    public void transcribe(@Connection WhisperConnection connection,
-                           @Content TypedValue<InputStream> audioContent,
-                           @Optional String finetuningPrompt,
-                           @MetadataKeyId @ParameterGroup(name = "Transcription Options") STTParamsModelDetails transcriptionOptions,
-                           CompletionCallback<String, Object> callback) {
-        connection.transcribe(audioContent, finetuningPrompt, transcriptionOptions).whenComplete((result, e) -> {
-            if (null == e) {
-                callback.success(Result.<String, Object>builder()
-                        .output(result.getOutput())
-                        .build());
-            } else {
-                callback.error(e.getCause());
-            }
-        });
-    }
+public class TextToSpeechOperations {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TextToSpeechOperations.class);
 
     @DisplayName("Text to Speech")
     @Alias("text-to-speech")
     @MediaType(value = "audio/mp3", strict = false)
     @Throws(GenerationErrorTypeProvider.class)
-    public void generateSpeech(@Connection WhisperConnection connection,
+    public void generateSpeech(@Connection TextToSpeechConnection connection,
                                @Content String text,
                                @ParameterGroup(name="Generation Options") TTSParamsModelDetails generationOptions,
                                CompletionCallback<InputStream, Void> callback) {

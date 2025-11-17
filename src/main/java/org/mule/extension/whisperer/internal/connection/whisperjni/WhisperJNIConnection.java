@@ -1,10 +1,8 @@
 package org.mule.extension.whisperer.internal.connection.whisperjni;
 
 import org.mule.extension.whisperer.api.STTParamsModelDetails;
-import org.mule.extension.whisperer.api.TTSParamsModelDetails;
 import org.mule.extension.whisperer.api.error.ConnectorError;
-import org.mule.extension.whisperer.internal.connection.WhisperConnection;
-import org.mule.extension.whisperer.internal.error.ConnectionIncompatibleException;
+import org.mule.extension.whisperer.internal.connection.SpeechToTextConnection;
 import org.mule.extension.whisperer.internal.error.TranscriptionException;
 import org.mule.extension.whisperer.internal.helpers.audio.AudioFileReader;
 import org.mule.extension.whisperer.internal.helpers.audio.AudioUtils;
@@ -21,7 +19,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
 import java.util.concurrent.CompletableFuture;
 
-public class WhisperJNIConnection implements WhisperConnection {
+public class WhisperJNIConnection implements SpeechToTextConnection {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhisperJNIConnection.class);
 
     private final WhisperJNI whisper;
@@ -67,46 +65,19 @@ public class WhisperJNIConnection implements WhisperConnection {
         }
         LOGGER.trace("Audio file successfully saved to temporary file: {}", tempAudioFile.getAbsolutePath());
 
-        // Convert audio to WAV if necessary
+        // Convert audio to WAV format (supports all formats: MP3, M4A, WAV, FLAC, OGG, WEBM)
         String processedFilePath = tempAudioFile.getAbsolutePath();
+        String wavFilePath = processedFilePath.replaceAll("\\.\\w+$", ".wav");
 
-        String audioFormat = AudioUtils.guessAudioFormat(audioContent.getDataType().getMediaType());
-
-        if(audioFormat != null) {
-
-            try {
-
-                LOGGER.trace("Converting audio file to WAV format.");
-                String wavFilePath = processedFilePath.replaceAll("\\.\\w+$", ".wav");
-
-                switch (audioFormat) {
-                    case "wav":
-                        break;
-                    case "mp3":
-                        AudioFileReader.convertMp3ToWav(processedFilePath, wavFilePath);
-                        processedFilePath = wavFilePath;
-                        break;
-                    case "m4a":
-                        AudioFileReader.convertM4AToWavWithFFmpeg(processedFilePath, wavFilePath);
-                        processedFilePath = wavFilePath;
-                        break;
-                    default:
-                        throw new ModuleException("Audio format not supported: " + audioFormat,
-                                                  ConnectorError.AUDIO_FORMAT_NOT_SUPPORTED);
-                }
-
-                LOGGER.debug("Audio file converted to WAV format: {}", wavFilePath);
-
-            } catch (UnsupportedAudioFileException | IOException e) {
-                return CompletableFuture.supplyAsync(() -> {
-                    throw new TranscriptionException("Error converting audio content to wav format", e);
-                });
-            }
-
-        } else {
-
-            throw new ModuleException("Audio format not supported: " + audioContent.getDataType().getMediaType().toString(),
-                                      ConnectorError.AUDIO_FORMAT_NOT_SUPPORTED);
+        try {
+            LOGGER.trace("Converting audio file to WAV format via AudioConverter pipeline.");
+            AudioFileReader.convertAudioToWav(processedFilePath, wavFilePath);
+            processedFilePath = wavFilePath;
+            LOGGER.debug("Audio file converted to WAV format: {}", wavFilePath);
+        } catch (IOException e) {
+            return CompletableFuture.supplyAsync(() -> {
+                throw new TranscriptionException("Error converting audio content to WAV format", e);
+            });
         }
 
         // Read audio file and extract samples
@@ -141,14 +112,6 @@ public class WhisperJNIConnection implements WhisperConnection {
             });
         }
     }
-
-    @Override
-    public CompletableFuture<InputStream> generate(String text, TTSParamsModelDetails params) {
-        return CompletableFuture.supplyAsync(() -> {
-            throw new ConnectionIncompatibleException("Operation not supported by Local Whisper connection");
-        });
-    }
-
     public WhisperContext getWhisperContext() {
         return whisperContext;
     }
