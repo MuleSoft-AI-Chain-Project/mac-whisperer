@@ -5,6 +5,31 @@ All notable changes to the MuleSoft Whisperer Connector will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - TBD
+
+### Added
+- **Local TTS Support** - Piper TTS integration for air-gapped and cost-optimized deployments
+  - `PiperLocalTTSConnectionProvider` - Load voice models from filesystem or classpath
+  - `PiperRemoteTTSConnectionProvider` - Download and cache models from Hugging Face
+  - Support for 40+ languages with multiple quality tiers (low/medium/high)
+  - Free and open source (MIT-licensed voice models)
+
+### Changed
+- TextToSpeechConfiguration now supports 3 providers (dropdown selector appears in Anypoint Studio)
+  - OpenAI (existing cloud TTS)
+  - Piper (Local .onnx) - NEW
+  - Piper (Remote .onnx) - NEW
+- Existing OpenAI TTS configurations continue to work without changes
+
+### Performance
+- Local TTS generation: 77ms-1349ms depending on text length and quality tier
+- Performance exceeds real-time by 87-96% on modern hardware
+- Recommended: `en_US-lessac-medium` (60MB, ~500ms generation, excellent quality)
+
+### Dependencies
+- Added `io.github.givimad:piper-jni:1.2.0-c0670df` (bundled with connector)
+- No additional dependencies required for basic Piper TTS functionality
+
 ## [0.4.0] - 2025-10-20
 
 ### BREAKING CHANGES

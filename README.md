@@ -52,6 +52,61 @@ MAC Whisperer supports 2 main use cases,
 - **Speech-to-Text**: Converts audio files (wav, mp3, etc.) into text
 - **Text-to-Speech**: Converts text to audio files (wav, mp3, etc.)
 
+## Text-to-Speech Providers
+
+The connector supports multiple TTS providers with different trade-offs:
+
+### Cloud TTS (OpenAI)
+- **Quality**: Highest quality, natural-sounding voices
+- **Cost**: API key required, usage costs apply
+- **Deployment**: Requires internet connectivity
+- **Use Case**: Production applications requiring best quality
+
+### Local TTS (Piper)
+- **Quality**: Good to excellent quality (configurable quality tiers)
+- **Cost**: Free (MIT-licensed voice models)
+- **Deployment**: Air-gapped/offline deployment support
+- **Use Case**: Privacy-sensitive deployments, cost optimization
+
+#### Piper Provider Options
+
+**1. Piper (Local .onnx)** - Use models from filesystem or classpath
+```xml
+<whisperer:text-to-speech-config name="TTS_Piper_Local">
+    <whisperer:piperlocal-connection
+        voiceName="en_US-lessac-medium"
+        modelFilePath="classpath://models/piper/en_US-lessac-medium.onnx"
+        configFilePath="classpath://models/piper/en_US-lessac-medium.onnx.json"/>
+</whisperer:text-to-speech-config>
+```
+
+**2. Piper (Remote .onnx)** - Download and cache from Hugging Face
+```xml
+<whisperer:text-to-speech-config name="TTS_Piper_Remote">
+    <whisperer:piperurl-connection
+        modelURL="https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx"
+        configURL="https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json"
+        installationFilePath="#[mule.home ++ '/apps/' ++ app.name ++ '/piper-models']"/>
+</whisperer:text-to-speech-config>
+```
+
+#### Voice Models
+
+Download voice models from: https://huggingface.co/rhasspy/piper-voices
+
+**Recommended**: `en_US-lessac-medium` (60MB, excellent quality, ~500ms generation time)
+
+**Quality Tiers:**
+- **Low**: Smallest models (~60MB), fastest inference (~260ms), good quality (16kHz)
+- **Medium**: Balanced models (~60MB), fast inference (~500ms), excellent quality (22kHz) - **Recommended**
+- **High**: Largest models (~109MB), slower inference (~665ms), premium quality (22kHz)
+
+**Performance**: Piper TTS generates speech 87-96% faster than real-time on modern hardware.
+
+**Languages**: 40+ languages supported beyond English (Spanish, French, German, Italian, Portuguese, Chinese, and more)
+
+**Dependencies**: Piper TTS support is bundled with the connector - no additional dependencies required for basic functionality.
+
 ### Supported Audio Formats
 
 #### Core Formats (Always Available)

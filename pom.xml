@@ -99,6 +99,13 @@
             <version>1.7.1</version>
         </dependency>
 
+        <!-- Piper JNI for local TTS -->
+        <dependency>
+            <groupId>io.github.givimad</groupId>
+            <artifactId>piper-jni</artifactId>
+            <version>1.2.0-c0670df</version>
+        </dependency>
+
         <!-- API, java.xml.bind module -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
@@ -148,6 +155,10 @@
                         <sharedLibrary>
                             <groupId>io.github.givimad</groupId>
                             <artifactId>whisper-jni</artifactId>
+                        </sharedLibrary>
+                        <sharedLibrary>
+                            <groupId>io.github.givimad</groupId>
+                            <artifactId>piper-jni</artifactId>
                         </sharedLibrary>
                         <sharedLibrary>
                             <groupId>org.bytedeco</groupId>
